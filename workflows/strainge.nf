@@ -25,9 +25,10 @@ workflow DATABASE {
 
   strainge_db(refgenomedir)
   refgenomefna=strainge_db.out.ref_genome_fna
+  refgenomefna=refgenomefna.flatten()
 
   kmerize_ref(refgenomefna)
-  hdf5_ref=kmerize_ref.out.hdf5_kmer
+  hdf5_ref=kmerize_ref.out.hdf5_kmer.collect()
 
   cluster(hdf5_ref)
 }
