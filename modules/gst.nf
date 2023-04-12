@@ -18,13 +18,13 @@ process gstrun{
   cpus '8'
   time '10h'
   module 'conda'
-  pubishDir "strainge/gst"
+  publishDir 'strainge/gst', mode:"copy"
   input:
     tuple val(x), path(hdf5)
     path(pangenome)
   output:
     path("*strains.tsv"), emit: strains
-    path("*stats.tsv"), emit:stats
+    path("*stats.tsv"),  emit: stats
   script:
     """
     source activate ${params.conda_env}

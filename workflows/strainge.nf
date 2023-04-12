@@ -60,23 +60,23 @@ workflow STRAINGST {
   strainstsv=gstrun.out.strains
   strainstsv=strainstsv.collect()
   refgenomedir=Channel.fromPath(params.ref_genomes)
-  refgenomedir=refgenomedir.collect()
+  //refgenomedir=refgenomedir.collect()
   simtsv=Channel.fromPath(params.similarity)
-  simtsv=simtsv.collect()
+  //simtsv=simtsv.collect()
   stats=gstrun.out.stats
   
   prepare_ref(strainstsv,refgenomedir, simtsv)
   concat_fasta=prepare_ref.out.concat_fasta
-  concat_fasta_cp=concat_fasta
-  concat_fasta_cp=concat_fasta_cp.collect()
-  meta=prepare_ref.out.meta
-  meta=meta.collect()
-  align_input=fastq_trimmecp.combine(concat_fasta)
+  concat_fascp=prepare_ref.out.concat_fasta
+  md=prepare_ref.out.md
+  md=md.collect()
+  concat_fascp=concat_fascp.collect()
+  align_input=fastq_trimmcp.combine(concat_fasta)
 
   align(align_input)
   bam=align.out.bam
 
-  variant_call(bam, concat_fasta_cp, meta)
+  variant_call(bam, concat_fascp, md)
 
 }
 

@@ -1,7 +1,5 @@
 
 process prepare_ref{
-  //scratch true
-  //memory '6GB'
   cpus '1'
   time '10h'
   module 'conda'
@@ -11,7 +9,7 @@ process prepare_ref{
      path(simtsv)
   output:
     path("refs_concat.fasta"), emit: concat_fasta
-    path("refs_concat.meta.jason"), emit: meta
+    path("refs_concat.meta.json"), emit: md
   script:
     """
     source activate ${params.conda_env}
@@ -57,7 +55,7 @@ process variant_call{
     path(meta)
   output:
     tuple val(x), path("${x.id}.hdf5"), emit: sample_hdf5
-    path(${x.id}.tsv), emit: variant_tsv 
+    path ("${x.id}.tsv"), emit: variant_tsv 
 
   script:
     """
