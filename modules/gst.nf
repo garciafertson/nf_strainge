@@ -2,7 +2,7 @@ process kmerize_sample{
   cpus '8'
   time '10h'
   module 'conda'
-  publishDir("strainge/gst")
+  publishDir("strainge/gst/sample_kmer"), mode:"copy"
   input:
     tuple val(x), path(reads)
   output:
@@ -15,20 +15,21 @@ process kmerize_sample{
 }
 
 process gstrun{
-  cpus '8'
+  cpus '6'
   time '10h'
   module 'conda'
-  publishDir 'strainge/gst', mode:"copy"
+  publishDir "strainge/gst/${params.outgst}", mode:"copy"
   input:
-    tuple val(x), path(hdf5)
+    path(hdf5)
     path(pangenome)
   output:
     path("*strains.tsv"), emit: strains
     path("*stats.tsv"),  emit: stats
   script:
+    x=hdf5.getSimpleName()
     """
     source activate ${params.conda_env}
-    straingst run -O -o ${x.id} ${pangenome} ${hdf5}
+    straingst run -O -o ${x} ${pangenome} ${hdf5}
     """
 }
 

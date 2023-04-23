@@ -4,15 +4,19 @@
 
 nextflow.enable.dsl=2
 
-include {DATABASE}  from './workflows/strainge'
-include {STRAINGST} from './workflows/strainge'
-//include {STRAINGR} from './workflows/strainge'
+include {DATABASE}   from './workflows/strainge'
+include {STRAINGST}  from './workflows/strainge'
+include {KMERSAMPLES} from './workflows/strainge'
+include {STRAINGR}   from './workflows/strainge'
 
 //select step for stringe pipeline
 
 workflow NF_STRAINGE {
    if (params.step=="DATABASE") {
         DATABASE()
+        }
+   else if (params.step=="KMER" ){
+        KMERSAMPLES()
         }
    else if (params.step=="STRAINGST"){
         STRAINGST()

@@ -34,7 +34,7 @@ workflow DATABASE {
 }
 
 
-workflow STRAINGST {
+workflow KMERSAMPLES {
   Channel
     .fromFilePairs(params.input, size: params.single_end ? 1 : 2)
     .ifEmpty { exit 1, "Cant find reads matching: ${params.input}\nNB: enclosed Path in quotes!\n If SE --single_end option." }
@@ -52,33 +52,16 @@ workflow STRAINGST {
   fastq_trimmcp=fastp.out.reads
 
   kmerize_sample(fastq_trimmed)
-  hdf5_sample=kmerize_sample.out.hdf5
+}
+
+workflow STRAINGST{
+  hdf5_sample=Channel.fromPath(params.kmer_hdf5)
   pangenome=Channel.fromPath(params.db)
   pangenome=pangenome.collect()
-
+ 
   gstrun(hdf5_sample, pangenome)
-  strainstsv=gstrun.out.strains
-  strainstsv=strainstsv.collect()
-  refgenomedir=Channel.fromPath(params.ref_genomes)
-  //refgenomedir=refgenomedir.collect()
-  simtsv=Channel.fromPath(params.similarity)
-  //simtsv=simtsv.collect()
-  stats=gstrun.out.stats
-  
-  prepare_ref(strainstsv,refgenomedir, simtsv)
-  concat_fasta=prepare_ref.out.concat_fasta
-  concat_fascp=prepare_ref.out.concat_fasta
-  md=prepare_ref.out.md
-  md=md.collect()
-  concat_fascp=concat_fascp.collect()
-  align_input=fastq_trimmcp.combine(concat_fasta)
-
-  align(align_input)
-  bam=align.out.bam
-
-  variant_call(bam, concat_fascp, md)
-
 }
+
 
 
 
@@ -97,5 +80,25 @@ workflow STRAINGR {
 
   fastp(ch_raw_short_reads)
   fastq_trimmed=fastp.out.reads
+
+  strainstsv=Channel.fromPath(params.strains_gsttsv)
+  strainstsv=strainstsv.collect()
+  refgenomedir=Channel.fromPath(params.ref_genomes)
+  //refgenomedir=refgenomedir.collect()
+  simtsv=Channel.fromPath(params.similarity)
+  //simtsv=simtsv.collect()
+  
+  prepare_ref(strainstsv,refgenomedir, simtsv)
+  concat_fasta=prepare_ref.out.concat_fasta
+  concat_fascp=prepare_ref.out.concat_fasta
+  md=prepare_ref.out.md
+  md=md.collect()
+  concat_fascp=concat_fascp.collect()
+  align_input=fastq_trimmed.combine(concat_fasta)
+
+  align(align_input)
+  bam=align.out.bam
+
+  variant_call(bam, concat_fascp, md)
 
 }
